@@ -1,0 +1,1 @@
+scoreassoc --gcdatafile gva.FURIN.dat --numloci 656 --locusfilterfile gva.FURIN.lf.par --locusweightfile gva.FURIN.lw.par --locusnamefile gva.FURIN.comm.par --filterfile gva.FURIN.filter.par --outfile gva.FURIN.sao --scorefile gva.FURIN.sco --weightfactor 10.000000 --varfile /home/rejudcu/vcf/UKBB/ukb41465.exomes.allchr.eigenvec --dottest 1 --dolrtest 1
