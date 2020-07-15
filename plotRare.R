@@ -1,3 +1,5 @@
+# show geographical distribution of rare variants
+
 wd="C:/Users/dave/OneDrive/sharedseq/UKBB/rare"
 ppi=600
 

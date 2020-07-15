@@ -19,7 +19,7 @@ disease=ADSP2
 model=common.withAPOE
 
 disease=UKBB
-model=HL.all
+model=seenPsychDepn.all
 
 # disease="UCLEx.Prionb2"
 if [ .$disease == . ]
@@ -76,7 +76,7 @@ END {
 
 # echo Gene$'\t'SLPD$'\t'SLPR$'\t'SLPHA$'\t'SLPHO > $summFile
 # echo Gene$'\t'SLP$'\t'tSLPscore$'\t'tSLPscorePC$'\t'tSLPscorePCPRS$'\t'tSLPscorePCCNV$'\t'tSLPscoreALL> $summFile
-echo Gene$'\t'linrSLP$'\t'tSLP> $summFile
+echo Gene$'\t'tSLP$'\t'lrSLPwithPCs$'\t'lrSLP> $summFile
 # echo Gene$'\t'SLP$'\t'tSLP$'\t'tSLPPC> $summFile
 
 find  $resultsFolder -name '*.sao' | while read resultsFile
