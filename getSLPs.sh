@@ -19,7 +19,7 @@ disease=ADSP2
 model=common.withAPOE
 
 disease=UKBB
-model=seenPsychDepn.all
+model=HT.all
 
 # disease="UCLEx.Prionb2"
 if [ .$disease == . ]

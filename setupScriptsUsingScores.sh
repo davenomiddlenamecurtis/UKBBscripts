@@ -12,7 +12,7 @@ geneList=/home/rejudcu/reference38/allGenes.20191018.onePCDHG.txt
 
 disease=UKBB
 sourceModel=HL.all
-model=seenPsychDepn.all
+model=HT.all
 
 refdir=reference38
 
@@ -89,6 +89,7 @@ cat $geneList | while read geneName
 		pwd
 		if [ -e $inputScoreFile ]
 		then
+#		  commLine=\"scoreassoc `cat $argFile` --inputscorefile $inputScoreFile --outfile $testName.$geneName.sao \" 
 		  commLine=\"scoreassoc `cat $argFile` --inputscorefile $inputScoreFile --outfile $testName.$geneName.sao --varfile /home/rejudcu/vcf/UKBB/ukb41465.exomes.allchr.eigenvec --dolrtest 1  --testfile /home/rejudcu/pars/justScore.tst\" 
 		  echo Running:
 		  echo \$commLine
