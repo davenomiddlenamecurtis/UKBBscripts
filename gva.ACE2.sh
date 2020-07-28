@@ -1,1 +1,0 @@
-scoreassoc --gcdatafile gva.ACE2.dat --numloci 565 --locusfilterfile gva.ACE2.lf.par --locusweightfile gva.ACE2.lw.par --locusnamefile gva.ACE2.comm.par --filterfile gva.ACE2.filter.par --outfile gva.ACE2.sao --scorefile gva.ACE2.sco --weightfactor 10.000000 --varfile /home/rejudcu/vcf/UKBB/ukb41465.exomes.allchr.eigenvec --dottest 1 --dolrtest 1

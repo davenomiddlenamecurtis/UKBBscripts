@@ -1,1 +1,0 @@
-scoreassoc --gcdatafile gva.TMPRSS2.dat --numloci 707 --locusfilterfile gva.TMPRSS2.lf.par --locusweightfile gva.TMPRSS2.lw.par --locusnamefile gva.TMPRSS2.comm.par --filterfile gva.TMPRSS2.filter.par --outfile gva.TMPRSS2.sao --scorefile gva.TMPRSS2.sco --weightfactor 10.000000 --varfile /home/rejudcu/vcf/UKBB/ukb41465.exomes.allchr.eigenvec --dottest 1 --dolrtest 1

@@ -1,1 +1,0 @@
-scoreassoc --gcdatafile gva.DRD2.dat --numloci 323 --locusfilterfile gva.DRD2.lf.par --locusweightfile gva.DRD2.lw.par --locusnamefile gva.DRD2.comm.par --filterfile gva.DRD2.filter.par --outfile gva.DRD2.sao --scorefile gva.DRD2.sco --weightfactor 10.000000 --varfile /home/rejudcu/vcf/UKBB/ukb41465.exomes.allchr.eigenvec --dottest 1 --dolrtest 1

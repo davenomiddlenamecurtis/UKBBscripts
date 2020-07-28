@@ -1,1 +1,0 @@
-scoreassoc --gcdatafile gva.LZTFL1.dat --numloci 459 --locusfilterfile gva.LZTFL1.lf.par --locusweightfile gva.LZTFL1.lw.par --locusnamefile gva.LZTFL1.comm.par --filterfile gva.LZTFL1.filter.par --outfile gva.LZTFL1.sao --scorefile gva.LZTFL1.sco --weightfactor 10.000000 --varfile /home/rejudcu/vcf/UKBB/ukb41465.exomes.allchr.eigenvec --dottest 1 --dolrtest 1
