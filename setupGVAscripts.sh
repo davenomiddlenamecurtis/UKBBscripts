@@ -3,7 +3,7 @@
 
 # geneList=/home/rejudcu/reference/allGenes140817.onePCDHG.txt
 geneList=/home/rejudcu/reference38/allGenes.20191018.onePCDHG.txt
-# geneList=/home/rejudcu/reference/DRDgenes.txt
+geneList=/home/rejudcu/reference/DRDgenes.txt
 # disease=MPexomes
 # model=bp1.myWeights
 
@@ -11,7 +11,7 @@ geneList=/home/rejudcu/reference38/allGenes.20191018.onePCDHG.txt
 # model=common.withAPOE
 
 disease=UKBB
-model=HL.all
+model=T2D.func
 
 refdir=reference38
 
@@ -101,8 +101,8 @@ cat $geneList | while read geneName
     outFile=$workFolder/results/$testName.$geneName.sao
     if [ ! -e $outFile ]
     then 
-		shellScript=$workFolder/scripts/runGVA.$testName.$geneName.sh
 		scoreFile=$workFolder/results/$testName.$geneName.sco
+		shellScript=$workFolder/scripts/runGVA.$testName.$geneName.sh
 		elogFile=$workFolder/results/$testName.$geneName.elog
 # I may add an exclusion log file so I can find which variants failed which conditions
 		echo "PATH=$softwareFolder:\$PATH 

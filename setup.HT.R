@@ -84,5 +84,6 @@ for (c in 2:ncol(hypertension)) {
   toWrite=hypertension[,c(1,c)]
   write.table(toWrite,sprintf("../HT/UKBB.%s.txt",colnames(hypertension)[c]),sep="\t",col.names=TRUE,row.names=FALSE,quote=FALSE)
 }
+write.table(hypertension,"../HT/UKBB.HTall.txt",sep="\t",col.names=TRUE,row.names=FALSE,quote=FALSE)
 
 
