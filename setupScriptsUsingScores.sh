@@ -2,7 +2,8 @@
 # DC script to set up GVA analyses, one script per gene
 
 # geneList=/home/rejudcu/reference/allGenes140817.onePCDHG.txt
-geneList=/home/rejudcu/reference38/allGenes.20191018.onePCDHG.txt
+# geneList=/home/rejudcu/reference38/allGenes.20191018.onePCDHG.txt
+geneList=/home/rejudcu/reference38/allGenes.hg38.withVariants.20201207.txt
 # geneList=/home/rejudcu/reference/DRDgenes.txt
 # disease=MPexomes
 # model=bp1.myWeights
@@ -11,11 +12,10 @@ geneList=/home/rejudcu/reference38/allGenes.20191018.onePCDHG.txt
 # model=common.withAPOE
 
 disease=UKBB
-sourceModel=HL.all
-model=HT.all
+sourceModel=HL.all.20201103
+model="sex.all.20201111 HL.withSex.20201207 Depn.withSex.20201207 LOAD.withSex.20201208"
 
 refdir=reference38
-
 
 homeFolder=/cluster/project9/bipolargenomes
 argFolder=/home/rejudcu/pars
@@ -37,6 +37,7 @@ do
 
 testName=$d.$m
 argFile=$argFolder/sco.$testName.args
+# argFileTxt=`cat $argFile`
 
 
 # workFolder=/cluster/project8/bipolargenomes/GVA
@@ -75,8 +76,6 @@ mkdir $workFolder/scripts;
 if [ -e $workFolder/temp ]; then mv $workFolder/temp $wastebin/temp; (rm -r $wastebin/temp & ); fi;
 mkdir $workFolder/temp; 
 
-# can append this to the args
-# --varfile /home/rejudcu/vcf/UKBB/ukb41465.exomes.allchr.eigenvec --dolrtest 1  --testfile /home/rejudcu/pars/justScore.tst 
 cat $geneList | while read geneName
     do
     outFile=$workFolder/results/$testName.$geneName.sao
@@ -84,16 +83,14 @@ cat $geneList | while read geneName
     then 
 		shellScript=$workFolder/scripts/runScoreassoc.$testName.$geneName.sh
 		inputScoreFile=$inputFolder/$d.$sourceModel.$geneName.sco
-		echo "PATH=$softwareFolder:\$PATH 
-		rm $testName.$geneName.sao
+		commLine="scoreassoc --argfile $argFile --inputscorefile $inputScoreFile --outfile $testName.$geneName.sao"
+		echo "rm $testName.$geneName.sao
 		pwd
 		if [ -e $inputScoreFile ]
 		then
-#		  commLine=\"scoreassoc `cat $argFile` --inputscorefile $inputScoreFile --outfile $testName.$geneName.sao \" 
-		  commLine=\"scoreassoc `cat $argFile` --inputscorefile $inputScoreFile --outfile $testName.$geneName.sao --varfile /home/rejudcu/vcf/UKBB/ukb41465.exomes.allchr.eigenvec --dolrtest 1  --testfile /home/rejudcu/pars/justScore.tst\" 
 		  echo Running:
-		  echo \$commLine
-		  \$commLine 
+		  echo $commLine
+		  $commLine 
 		  echo finished running scoreassoc
 		else
 		  echo No score file $inputScoreFile > $testName.$geneName.sao

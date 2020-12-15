@@ -2,8 +2,10 @@
 # DC script to set up GVA analyses, one script per gene
 
 # geneList=/home/rejudcu/reference/allGenes140817.onePCDHG.txt
-geneList=/home/rejudcu/reference38/allGenes.20191018.onePCDHG.txt
-geneList=/home/rejudcu/reference/DRDgenes.txt
+# geneList=/home/rejudcu/reference38/allGenes.20191018.onePCDHG.txt
+geneList=/home/rejudcu/reference38/allGenes.hg38.withVariants.20201207.txt
+# geneList=~/tmp/HUWE1.txt
+# geneList=/home/rejudcu/reference/DRDgenes.txt
 # disease=MPexomes
 # model=bp1.myWeights
 
@@ -11,15 +13,18 @@ geneList=/home/rejudcu/reference/DRDgenes.txt
 # model=common.withAPOE
 
 disease=UKBB
-model=T2D.func
+# model=T2D.func
+model=HL.all.20201103
 
 refdir=reference38
 
 if [ -z $geneList ]
 then
 # geneList=/home/rejudcu/SSSDNMclinical/notNeuroGenes.lst
- geneList=/home/rejudcu/SSSDNMclinical/dominantGenes.lst
+# geneList=/home/rejudcu/SSSDNMclinical/dominantGenes.lst
 # geneList=/home/rejudcu/SSSDNMclinical/recessiveGenes.lst
+echo geneList is not set
+exit
 fi
 # geneList=/home/rejudcu/reference/DRDgenes.txt
 # geneList=/home/rejudcu/tmp/FAM21EP.lst
@@ -39,6 +44,31 @@ then
 #   model="codeVars.Dam.NotNeuro codeVars.Dis.NotNeuro"
 #  model="codeRecDam codeRecDis"
 fi
+
+nhours=10 # till this script runs again, was 6 but this just interrupted running scripts
+joblength=8 # time for job to run before it gets terminated, was 4 then 6
+queue=queue6
+scratch=100
+
+# Trying back to 6 now that memory for subject loci is allocated dynamically
+# UKBB analyses were running out of memory with vmem=6
+# vmem=8
+# I think one or two genes did not work with vmem=8
+# yup, calloc() failed
+# Assertion `sub[s]=(subject *)calloc(1,sizeof(subject))' failed.
+# vmem=12
+# Still not enought
+# scoreassoc: ../src/scoreassoc.cpp:49: int main(int, char**): Assertion `sub[s]=(subject *)calloc(1,sizeof(subject))' failed.
+# vmem=16
+
+# actually, qstat -j says maxvmem is never over 1G
+# vmem=2
+# vmem=6 # just for last few genes 
+# vmem=24 # 12 did not work for a few, this worked for all but KIAA1109
+# vmem=32 # last three - of queues forever go back to 24 and find out what went wrong
+# vmem=48 # just for TTN
+vmem=60 # just for KIAA1109 and TTN
+
 
 homeFolder=/cluster/project9/bipolargenomes
 argFolder=/home/rejudcu/pars
@@ -76,14 +106,6 @@ mainSplitScript=$workFolder/scripts/$scriptName
 
 qdel $testName.'runSplit*'
 
-nhours=4
-vmem=6 
-memory=2
-queue=queue6
-scratch=0
-
-# UKBB analyses were running out of memory with vmem=6
-vmem=8
 
 if [ ! -e $workFolder ]; then mkdir $workFolder; fi;
 wastebin=$workFolder/wastebin
@@ -106,9 +128,15 @@ cat $geneList | while read geneName
 		elogFile=$workFolder/results/$testName.$geneName.elog
 # I may add an exclusion log file so I can find which variants failed which conditions
 		echo "PATH=$softwareFolder:\$PATH 
+# always use scratch0 now there is a flatfile access
+		cd /scratch0
+		df /scratch0
+		mkdir $geneName
+		cd $geneName
 		rm gva.$geneName.*
+		hostname
 		pwd
-		commLine=\"geneVarAssoc --arg-file $argFile --gene $geneName \" 
+		commLine=\"geneVarAssoc --arg-file $argFile --gene $geneName --keep-temp-files 1\" 
 		echo Running:
 		echo \$commLine
 		\$commLine 
@@ -116,7 +144,18 @@ cat $geneList | while read geneName
 		cp gva*.$geneName.*sco $scoreFile 
 		cp gva*.$geneName.*sao $outFile 
 		cp gva*.$geneName.elog $elogFile
-		if [ ! -s $outFile ] ; then rm -f $outFile $scoreFile $elogFile; fi
+		if [ ! -s $outFile ]
+		then
+		  echo no result so will try to run scoreassoc on its own
+		  cat gva*.$geneName.sh
+		  bash -x gva*.$geneName.sh
+		  cp gva*.$geneName.*sco $scoreFile 
+		  cp gva*.$geneName.*sao $outFile 
+		  cp gva*.$geneName.elog $elogFile
+		fi
+		if [ ! -s $outFile ] ; then ls -l;  hostname; df /scratch0; echo still no output so deleting files; rm -f $outFile $scoreFile $elogFile; fi
+		cd ..
+		rm -rf $geneName
 		" >> $shellScript
     fi
     done
@@ -138,7 +177,7 @@ echo "
 #$ -o $workFolder/error
 #$ -l tscr=${scratch}G
 #$ -l tmem=${vmem}G,h_vmem=${vmem}G
-#$ -l h_rt=${nhours}:0:0
+#$ -l h_rt=${joblength}:0:0
 #$ -t 1-$nSplits
 #$ -V
 #$ -R y
@@ -182,7 +221,6 @@ then
 	echo running source \$f # try using source $f instead of bash $f
 	source \$f
 	echo finished running source \$f
-	rm *
 fi
 if [ \$n -eq $nSplits ]
 then

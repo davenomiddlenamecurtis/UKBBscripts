@@ -19,8 +19,9 @@ disease=ADSP2
 model=common.withAPOE
 
 disease=UKBB
-model=HT.all
-
+# model="HL.all.20201103 HL.all.20201103.XGenes HL.all.20201103.notXGenes"
+model="sex.all.20201111 HL.withSex.20201207 Depn.withSex.20201207 LOAD.withSex.20201208"
+model="sex.all.20201111.XGenes sex.all.20201111.notXGenes"
 # disease="UCLEx.Prionb2"
 if [ .$disease == . ]
 then
@@ -35,10 +36,10 @@ fi
 
 for d in $disease
 do
-for n in $model
+for m in $model
 do 
 
-testName=$d.$n
+testName=$d.$m
 
 if [ .$testName == . ]
 then
@@ -82,8 +83,9 @@ echo Gene$'\t'tSLP$'\t'lrSLPwithPCs$'\t'lrSLP> $summFile
 find  $resultsFolder -name '*.sao' | while read resultsFile
 	do
 	gene=${resultsFile%.sao}
-	gene=${gene#*$model.}
-	awk -v gene=$gene "$getSLPs" $resultsFile >> $summFile
+	gene=${gene#*$m.}
+	tail -n 100 $resultsFile | grep LP | awk -v gene=$gene "$getSLPs" >> $summFile # all valid lines contain LP
+#	awk -v gene=$gene "$getSLPs" $resultsFile >> $summFile
 	done
 done
 done

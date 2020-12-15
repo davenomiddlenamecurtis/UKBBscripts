@@ -1,5 +1,5 @@
-wd="C:/Users/dave/OneDrive/sharedseq/UKBB"
-saoFile="UKBB.BMI.all.summ.txt"
+wd="C:/Users/dave/OneDrive/sharedseq/UKBB/UKBB.HL.withSex.20201207/UKBB.sex.all.20201111.notXGenes"
+saoFile="UKBB.sex.all.20201111.notXGenes.summ.txt"
 
 stripZeroGenes=TRUE
 
@@ -19,10 +19,9 @@ qqSLPs<-function(SLPs) {
 
 setwd(wd)
 results=data.frame(read.table(saoFile,header=TRUE))
+
 total=rowSums(results[,2:ncol(results)])
 results=results[which(total != 0),] # remove uninformative genes
-colnames(results)[2]="SLPwithPCs"
-colnames(results)[3]="SLPwithoutPCs"
 for (c in 2:ncol(results))
 {
 	SLP=na.omit(results[,c])
