@@ -1,7 +1,6 @@
 --arg-file /home/rejudcu/pars/gva.UKBB.all.arg
 --ID-and-phenotype-file /home/rejudcu/vcf/UKBB/UKBB.BMI.txt
 --isquantitative 1
---maxmaf 0.01
 --dottest 0
 --lintestfile /home/rejudcu/pars/justScore.tst
 --dolinrtest 1
