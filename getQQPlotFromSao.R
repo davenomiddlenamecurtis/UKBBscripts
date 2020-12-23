@@ -1,5 +1,5 @@
-wd="C:/Users/dave/OneDrive/sharedseq/UKBB/UKBB.HL.withSex.20201207/UKBB.sex.all.20201111.notXGenes"
-saoFile="UKBB.sex.all.20201111.notXGenes.summ.txt"
+wd="C:/Users/dave/OneDrive/sharedseq/UKBB/UKBB.HL.withSex.20201207"
+saoFile="UKBB.HL.withSex.20201207.summ.txt"
 
 stripZeroGenes=TRUE
 

@@ -14,6 +14,7 @@ geneList=/home/rejudcu/reference38/allGenes.hg38.withVariants.20201207.txt
 disease=UKBB
 sourceModel=HL.all.20201103
 model="sex.all.20201111 HL.withSex.20201207 Depn.withSex.20201207 LOAD.withSex.20201208"
+model=HL.withSex.20201207
 
 refdir=reference38
 

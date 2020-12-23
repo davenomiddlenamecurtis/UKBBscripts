@@ -63,11 +63,11 @@ scratch=100
 
 # actually, qstat -j says maxvmem is never over 1G
 # vmem=2
-# vmem=6 # just for last few genes 
+vmem=24 # just for last few genes 
 # vmem=24 # 12 did not work for a few, this worked for all but KIAA1109
 # vmem=32 # last three - of queues forever go back to 24 and find out what went wrong
 # vmem=48 # just for TTN
-vmem=60 # just for KIAA1109 and TTN
+# vmem=60 # just for KIAA1109 and TTN
 
 
 homeFolder=/cluster/project9/bipolargenomes

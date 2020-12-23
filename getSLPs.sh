@@ -23,6 +23,7 @@ disease=UKBB
 model="sex.all.20201111 HL.withSex.20201207 Depn.withSex.20201207 LOAD.withSex.20201208"
 model="sex.all.20201111.XGenes sex.all.20201111.notXGenes"
 # disease="UCLEx.Prionb2"
+model="HL.withSex.20201207"
 if [ .$disease == . ]
 then
   disease=Ashkenazi_ASJ
