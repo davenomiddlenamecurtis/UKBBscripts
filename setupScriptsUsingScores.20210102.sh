@@ -4,6 +4,8 @@
 # geneList=/home/rejudcu/reference/allGenes140817.onePCDHG.txt
 # geneList=/home/rejudcu/reference38/allGenes.20191018.onePCDHG.txt
 geneList=/home/rejudcu/reference38/genes.with.vars.20201225.txt
+# ONLY FUNCTIONAL VARIANTS - MAY NEED TO CHANGE THIS !!!
+geneList=/home/rejudcu/reference38/genes.with.vars.func.20210103.txt
 # geneList=/home/rejudcu/reference/DRDgenes.txt
 # disease=MPexomes
 # model=bp1.myWeights
@@ -12,10 +14,9 @@ geneList=/home/rejudcu/reference38/genes.with.vars.20201225.txt
 # model=common.withAPOE
 
 disease=UKBB
-sourceModel=HL.all.20201103
+sourceModel=HL.all.20201231
 model="sex.all.20201111 HL.withSex.20201207 Depn.withSex.20201207 LOAD.withSex.20201208"
-model=HL.withSex.20201207
-model="alcHigh.withSex.20201229"
+model="HL.withSex.20210102 alcHigh.withSex.20210102"
 
 refdir=reference38
 
@@ -139,10 +140,19 @@ set +e
 # this should switch off errexit
 echo Running \$0 with argument \$1
 $workFolder/temp
-cd $workFolder/temp
+cd /scratch0
 myDir=\$RANDOM
 mkdir \$myDir
 cd \$myDir # this is all so I can have local vcf and reference folders so par files will work with this and with scratch0
+mkdir vcf
+mkdir vcf/$disease
+cd vcf/$disease
+ln -s $dataHome/vcf/$disease/* .
+cd ../..
+mkdir $refdir
+cd $refdir
+ln -s $dataHome/$refdir/* .
+cd ..
 mkdir temp
 cd temp # so relative paths will work OK
 n=1

@@ -22,3 +22,6 @@ done
 plink --bfile ukb23155.common.20201106.c1 --merge-list ukb23155.common.tomerge.txt --make-bed --out ukb23155.common.all
 
 /share/apps/genomics/plink-2.0/bin/plink2 --bfile ukb23155.common.all --pca 20 approx --out ukb23155.common.all
+
+head -n 1 ukb23155.common.all.eigenvec | sed s/#// > ukb23155.common.all.eigenvec.txt
+tail -n +2 ukb23155.common.all.eigenvec >> ukb23155.common.all.eigenvec.txt

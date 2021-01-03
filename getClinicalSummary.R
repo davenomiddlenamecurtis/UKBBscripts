@@ -4,12 +4,18 @@
 # Summary table has fields Field First Last DataScheme Description
 
 
-genes=c("CACNA1G",
-"CUL1",
-"HERC1",
-"RB1CC1",
+genes=c(
 "SETD1A",
-"TRIO")
+"CUL1",
+"XPO7",
+"TRIO",
+"CACNA1G",
+"SP4",
+"GRIA3",
+"GRIN2A",
+"HERC1",
+"RB1CC1"
+)
 
 wd="C:/Users/dave/OneDrive/sharedseq/UKBB/LOF"
 # setwd(wd)
@@ -18,13 +24,17 @@ SummaryScheme=data.frame(read.table(SummarySchemeFile,header=TRUE,sep="\t"))
 
 largestCoding=200000
 codings= vector("list", largestCoding)
-genes="LDLR"
+# genes="LDLR"
 
 for (gene in genes) {
 
 UKBBdataFile=sprintf("LOFs.%s.phenos.txt",gene)
 annotsFile=sprintf("IDsAndAnnots.sorted.LOFs.%s.txt",gene)
 OutputFile=sprintf("SummaryFor.%s.txt",gene)
+
+if (!file.exists(UKBBdataFile)) {
+	next
+}
 
 UKBBdata=data.frame(read.table(UKBBdataFile,header=TRUE,sep="\t",fill=TRUE,quote=""))
 annots=data.frame(read.table(annotsFile,header=FALSE,sep=" "))

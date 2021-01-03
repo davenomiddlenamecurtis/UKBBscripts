@@ -2,6 +2,12 @@
 
 # script to get data files to analyse contribution of different types of variant to phenotype
 library(plyr)
+scoreFileTemplate="UKBB.HL.varCounts.20201211.%s.sco"
+argFile="~/pars/gva.UKBB.HL.varCounts.20201211.arg"
+wd="~/UKBB/lipids/HL.20201103/genes"
+scoreFileTemplate="UKBB.alcHigh.varCounts.20201231.%s.sco"
+argFile="~/pars/gva.UKBB.alcHigh.varCounts.20201231.arg"
+wd="~/UKBB/alcohol/genes"
 
 genes=c(
 "LDLR",
@@ -22,13 +28,28 @@ genes=c(
 "HMGCR",
 "APOB",
 "STAP1")
+
+genes=c(
+"LDLR",
+"PCSK9",
+"HMGCR",
+"APOB",
+"STAP1")
+
+
 # genes="no.rs72658867.LDLR"
 # genes="STAP1"
 
+args = commandArgs(trailingOnly=TRUE)
+if (length(args)!=0) {
+  genes=args
+}
+print(genes)
+print(args)
+q()
 
 PCsFile="/SAN/ugi/UGIbiobank/data/downloaded/ukb23155.common.all.eigenvec"
 sexFile="/home/rejudcu/UKBB/UKBB.sex.20201111.txt"
-wd="~/UKBB/lipids/HL.20201103/genes"
 
 nVarTypes=12 # 10000000000
 types=c(
@@ -48,13 +69,13 @@ types=c(
 setwd(wd)
 
 for (gene in genes) {
-varScoreFile=sprintf("UKBB.HL.varCounts.20201211.%s.sco",gene)
+varScoreFile=sprintf(scoreFileTemplate,gene)
 resultsFile=sprintf("analyseVarTypes.results.%s.txt",gene)
 if (file.exists(resultsFile)) { 
   next 
 }
 
-commLine=sprintf("if [ ! -e %s ];then geneVarAssoc --arg-file ~/pars/gva.UKBB.HL.varCounts.20201211.arg --gene %s; fi",varScoreFile, gene)
+commLine=sprintf("if [ ! -e %s ];then geneVarAssoc --arg-file %s --gene %s; fi",varScoreFile, argFile, gene)
 system(commLine)
 
 varScores=data.frame(read.table(varScoreFile,header=FALSE,sep=""))

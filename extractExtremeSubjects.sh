@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # obtain summary clinical pictures of subjects with extreme scores for a given gene
-# must not run genes in parallel because tabix annotations overwrite each other
 
 # this will fail if a subject has more than one LOF variant
 
@@ -9,7 +8,7 @@ gene=$1
 
 
 # exomesFile=/SAN/ugi/UGIbiobank/data/downloaded/ukb41465.exomes.txt
-model=LOFs
+model=LOF.20201227
 argFile=~/pars/gva.UKBB.$model.arg
 exomesFile=/SAN/ugi/UGIbiobank/data/downloaded/ukb41465.exomes.20201103.txt
 
@@ -40,6 +39,10 @@ if ($17 != "" && $17!="comment")
 rm IDs.$model.$gene.txt
 rm IDsAndVars.$model.$gene.txt
 rm IDsAndAnnots.$model.$gene.txt
+if [ ! -s $model.$gene.vars.txt ]
+then
+  exit
+fi
 cat $model.$gene.vars.txt | while read a b c d e
 do
   if [ ! -e altSubs.$model.$gene.$a.$b.$c.txt ]

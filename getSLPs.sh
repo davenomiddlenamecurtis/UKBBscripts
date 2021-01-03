@@ -15,15 +15,17 @@
 # disease=WKS
 # disease=IBDAJ
 # disease="MIGen" # this MUST be the disease because otherwise copyVCF does not work
-disease=ADSP2
-model=common.withAPOE
+# disease=ADSP2
+# model=common.withAPOE
 
 disease=UKBB
 # model="HL.all.20201103 HL.all.20201103.XGenes HL.all.20201103.notXGenes"
 model="sex.all.20201111 HL.withSex.20201207 Depn.withSex.20201207 LOAD.withSex.20201208"
 model="sex.all.20201111.XGenes sex.all.20201111.notXGenes"
 # disease="UCLEx.Prionb2"
-model="HL.withSex.20201207"
+model="alcHigh.withSex.20201229"
+model=HL.all.20201231
+
 if [ .$disease == . ]
 then
   disease=Ashkenazi_ASJ

@@ -2,9 +2,10 @@
 # DC script to set up GVA analyses, one script per gene
 
 # geneList=/home/rejudcu/reference/allGenes140817.onePCDHG.txt
-# geneList=/home/rejudcu/reference38/allGenes.20191018.onePCDHG.txt
-geneList=/home/rejudcu/reference38/allGenes.hg38.withVariants.20201207.txt
-# geneList=~/tmp/HUWE1.txt
+# geneList=/home/rejudcu/reference38/allGenes.20201224.onePCDHG.txt
+geneList=/home/rejudcu/reference38/genes.with.vars.20201225.txt
+# ONLY FUNCTIONAL VARIANTS - MAY NEED TO CHANGE THIS !!!
+geneList=/home/rejudcu/reference38/genes.with.vars.func.20210103.txt
 # geneList=/home/rejudcu/reference/DRDgenes.txt
 # disease=MPexomes
 # model=bp1.myWeights
@@ -14,7 +15,7 @@ geneList=/home/rejudcu/reference38/allGenes.hg38.withVariants.20201207.txt
 
 disease=UKBB
 # model=T2D.func
-model=HL.all.20201103
+model=HL.all.20201231
 
 refdir=reference38
 
@@ -57,17 +58,17 @@ scratch=100
 # yup, calloc() failed
 # Assertion `sub[s]=(subject *)calloc(1,sizeof(subject))' failed.
 # vmem=12
-# Still not enought
+# Still not enough
 # scoreassoc: ../src/scoreassoc.cpp:49: int main(int, char**): Assertion `sub[s]=(subject *)calloc(1,sizeof(subject))' failed.
 # vmem=16
 
 # actually, qstat -j says maxvmem is never over 1G
 # vmem=2
-vmem=24 # just for last few genes 
+# vmem=6 # just for last few genes 
 # vmem=24 # 12 did not work for a few, this worked for all but KIAA1109
 # vmem=32 # last three - of queues forever go back to 24 and find out what went wrong
-# vmem=48 # just for TTN
-# vmem=60 # just for KIAA1109 and TTN
+# vmem=48 # just for TTN - failed with 34,000 loci, just said segmentation fault 
+ vmem=60 # just for KIAA1109 and TTN
 
 
 homeFolder=/cluster/project9/bipolargenomes
@@ -127,10 +128,10 @@ cat $geneList | while read geneName
 		shellScript=$workFolder/scripts/runGVA.$testName.$geneName.sh
 		elogFile=$workFolder/results/$testName.$geneName.elog
 # I may add an exclusion log file so I can find which variants failed which conditions
-		echo "PATH=$softwareFolder:\$PATH 
-# always use scratch0 now there is a flatfile access
-		cd /scratch0
-		df /scratch0
+		echo "export LMOD_SH_DBG_ON=1
+# always use scratch0 now there is a flatfile access - the cd /scratch0/uniquedir is done by the calling script
+#		cd /scratch0
+#		df /scratch0
 		mkdir $geneName
 		cd $geneName
 		rm gva.$geneName.*
@@ -141,19 +142,22 @@ cat $geneList | while read geneName
 		echo \$commLine
 		\$commLine 
 		echo finished running geneVarAssoc
-		cp gva*.$geneName.*sco $scoreFile 
-		cp gva*.$geneName.*sao $outFile 
-		cp gva*.$geneName.elog $elogFile
-		if [ ! -s $outFile ]
+		cp *.$geneName.sco $scoreFile 
+		cp *.$geneName.sao $outFile 
+		cp *.$geneName.elog $elogFile
+		nSLPs=\`grep SLP $outFile | wc -l\`
+		if [ \$nSLPs == 0 ]
 		then
+		  ls -l
 		  echo no result so will try to run scoreassoc on its own
-		  cat gva*.$geneName.sh
-		  bash -x gva*.$geneName.sh
-		  cp gva*.$geneName.*sco $scoreFile 
-		  cp gva*.$geneName.*sao $outFile 
-		  cp gva*.$geneName.elog $elogFile
+		  cat *.$geneName.sh
+		  bash -x *.$geneName.sh
+		  cp *.$geneName.sco $scoreFile 
+		  cp *.$geneName.sao $outFile 
+		  cp *.$geneName.elog $elogFile
 		fi
-		if [ ! -s $outFile ] ; then ls -l;  hostname; df /scratch0; echo still no output so deleting files; rm -f $outFile $scoreFile $elogFile; fi
+		nSLPs=\`grep SLP $outFile | wc -l\`
+		if [ \$nSLPs == 0  ] ; then ls -l;  hostname; df /scratch0; echo still no output so deleting files; rm -f $outFile $scoreFile $elogFile; fi
 		cd ..
 		rm -rf $geneName
 		" >> $shellScript
@@ -197,8 +201,8 @@ set +e
 #  was exiting after running just one, possibly because no proper exit code from script
 # this should switch off errexit
 echo Running \$0 with argument \$1
-$workFolder/temp
-cd $workFolder/temp
+# cd $workFolder/temp
+cd /scratch0
 myDir=\$RANDOM
 mkdir \$myDir
 cd \$myDir # this is all so I can have local vcf and reference folders so par files will work with this and with scratch0
@@ -211,8 +215,9 @@ mkdir $refdir
 cd $refdir
 ln -s $dataHome/$refdir/* .
 cd ..
-mkdir temp
-cd temp # so relative paths will work OK
+# mkdir temp
+# cd temp # so relative paths will work OK
+# the called script will make a directory called geneName and cd into it
 n=1
 find $workFolder/scripts -name 'runGVA*sh' | while read f
 do
