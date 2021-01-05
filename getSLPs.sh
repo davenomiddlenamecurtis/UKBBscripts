@@ -25,6 +25,8 @@ model="sex.all.20201111.XGenes sex.all.20201111.notXGenes"
 # disease="UCLEx.Prionb2"
 model="alcHigh.withSex.20201229"
 model=HL.all.20201231
+model=HL.withSex.20210102
+model="alcHigh.withSex.20210103"
 
 if [ .$disease == . ]
 then

@@ -1,6 +1,6 @@
 #!/share/apps/R-3.6.1/bin/Rscript
 
-# script to get data files to analyse association with LOAD
+# script to get data files to analyse association with FAMLOAD
 
 # note that the column number to provide is one higher than that given in http://www.davecurtis.net/UKBB/ukb41465.html
 exomesFile="/SAN/ugi/UGIbiobank/data/downloaded/ukb41465.exomes.20201103.txt"
@@ -57,11 +57,11 @@ for (c in 2:ncol(LOAD)) {
   write.table(toWrite,sprintf("UKBB.%s.20201208.txt",colnames(LOAD)[c]),sep="\t",col.names=TRUE,row.names=FALSE,quote=FALSE)
 }
 
-write.table(LOAD,"UKBB.allLOAD.20201208.txt",sep="\t",col.names=TRUE,row.names=FALSE,quote=FALSE)
+write.table(LOAD,"UKBB.allFAMLOAD.20201208.txt",sep="\t",col.names=TRUE,row.names=FALSE,quote=FALSE)
 
 temp=data.frame(read.table("UKBB.LOADScore.20201208.txt",header=TRUE,sep="\t"))
 colnames(temp)=c("IID","LOADMax2")
 temp$LOADMax2[temp$LOADMax2>2]=2
-write.table(temp,"UKBB.LOADMax2.20201208.txt",sep="\t",col.names=TRUE,row.names=FALSE,quote=FALSE)
+write.table(temp,"UKBB.FAMLOADMax2.20201208.txt",sep="\t",col.names=TRUE,row.names=FALSE,quote=FALSE)
 
 

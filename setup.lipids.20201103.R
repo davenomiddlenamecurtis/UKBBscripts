@@ -2,8 +2,7 @@
 
 # script to get data files to analyse association with hypercholesterolaemia
 
-# note that the column number to provide is two higher than that given in http://www.davecurtis.net/UKBB/ukb41465.html
-# !!! this needs fixing because now the column numbers are one higher, not two higher !!!
+# note that the column number to provide is one higher than that given in http://www.davecurtis.net/UKBB/ukb41465.html
 
 exomesFile="/SAN/ugi/UGIbiobank/data/downloaded/ukb41465.exomes.20201103.txt"
 
@@ -27,7 +26,7 @@ prescribedRxLast=1913
 statinsFile="statins.txt"
 
 # first get subjects by self-reported diagnosis
-cmd=sprintf("tail -n +2 %s | cut -f 1,%d-%d > ../lipids/selfDiagnoses.txt",exomesFile,selfReportFirst+2,selfReportLast+2)
+cmd=sprintf("tail -n +2 %s | cut -f 1,%d-%d > ../lipids/selfDiagnoses.txt",exomesFile,selfReportFirst+1,selfReportLast+1)
 system(cmd)
 selfReport=data.frame(read.table("../lipids/selfDiagnoses.txt",header=FALSE,sep="\t"))
 hyperlipidaemia=data.frame(matrix(ncol=6,nrow=nrow(selfReport)))
@@ -41,7 +40,7 @@ for (r in 1:length(selfReportedCodes)) {
 ICD10Sources=data.frame(read.table(ICD10SourcesFile,header=TRUE,sep="\t"))
 cmd=sprintf("tail -n +2 %s | cut -f 1",exomesFile)
 for (r in 1:nrow(ICD10Sources)) {
-  cmd=sprintf("%s,%d-%d",cmd,ICD10Sources$First[r]+2,ICD10Sources$Last[r]+2)
+  cmd=sprintf("%s,%d-%d",cmd,ICD10Sources$First[r]+1,ICD10Sources$Last[r]+1)
 }
 cmd=sprintf("%s > ../lipids/ICD10Codes.txt",cmd)
 system(cmd)
@@ -54,7 +53,7 @@ for (r in 1:nrow(diagnoses)) {
   hyperlipidaemia$HLICD10[rowSums(ICD10==as.character(diagnoses[r,2]), na.rm = TRUE)>0]=1
 }
 
-cmd=sprintf("tail -n +2 %s | cut -f 1,%d >sex.txt ",exomesFile,sexCol+2)
+cmd=sprintf("tail -n +2 %s | cut -f 1,%d >sex.txt ",exomesFile,sexCol+1)
 system(cmd)
 sexTab=data.frame(read.table("sex.txt",header=FALSE,sep="\t"))
 colnames(sexTab)=c("IID","Sex")
@@ -63,10 +62,10 @@ write.table(sexTab,"../UKBB.sex.20201111.txt",sep="\t",col.names=TRUE,row.names=
 
 cmd=sprintf("tail -n +2 %s | cut -f 1",exomesFile)
 for (r in 1:length(femaleRxCols)) {
-  cmd=sprintf("%s,%d",cmd,femaleRxCols[r]+2)
+  cmd=sprintf("%s,%d",cmd,femaleRxCols[r]+1)
 }
 for (r in 1:length(maleRxCols)) {
-  cmd=sprintf("%s,%d",cmd,maleRxCols[r]+2)
+  cmd=sprintf("%s,%d",cmd,maleRxCols[r]+1)
 }
 cmd=sprintf("%s > ../lipids/selfReportRx.txt",cmd)
 system(cmd)
@@ -76,7 +75,7 @@ hyperlipidaemia$RxSelf=0
 hyperlipidaemia$RxSelf[rowSums(selfReportRx==1, na.rm = TRUE)>0]=1
 # 1 is the code for saying they are taking cholesterol-lowering medication
 
-cmd=sprintf("tail -n +2 %s | cut -f 1,%d-%d > ../lipids/prescribedRx.txt",exomesFile,prescribedRxFirst+2,prescribedRxLast+2)
+cmd=sprintf("tail -n +2 %s | cut -f 1,%d-%d > ../lipids/prescribedRx.txt",exomesFile,prescribedRxFirst+1,prescribedRxLast+1)
 system(cmd)
 prescribedRx=data.frame(read.table("../lipids/prescribedRx.txt",header=FALSE,sep="\t"))
 statins=data.frame(read.table(statinsFile,header=FALSE,sep="")) # list of statin codes

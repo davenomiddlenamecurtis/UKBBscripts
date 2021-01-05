@@ -16,7 +16,10 @@ geneList=/home/rejudcu/reference38/genes.with.vars.func.20210103.txt
 disease=UKBB
 sourceModel=HL.all.20201231
 model="sex.all.20201111 HL.withSex.20201207 Depn.withSex.20201207 LOAD.withSex.20201208"
-model="HL.withSex.20210102 alcHigh.withSex.20210102"
+model="HL.withSex.20210102"
+model="HL.withSex.20201207 alcHigh.withSex.20210103"
+model="alcProb.withSex.20210105"
+
 
 refdir=reference38
 

@@ -10,5 +10,5 @@ then
   exit
 fi
 
-echo IID$'\t'$1 > UKBB.$1.txt
+echo IID$'\t'$1 > UKBB.$1.20201103.txt
 tail -n +2 $exomesFile | cut -f 1,$2 >> UKBB.$1.20201103.txt

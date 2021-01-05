@@ -1,8 +1,11 @@
 #!/share/apps/R-3.6.1/bin/Rscript
 
 # R implementation of scoreassoc, using pre-calculated scores on new phenotypes
-library(plyr)
+# library(plyr)
 
+args = commandArgs(trailingOnly=TRUE)
+
+if (length(args)<1) {
 args=c("--IDphenotypefile","/home/rejudcu/UKBB/lipids/UKBB.HL.20201103.txt",
 "--dottest","1",
 "--varfile","/SAN/ugi/UGIbiobank/data/downloaded/ukb23155.common.all.eigenvec.txt",
@@ -13,7 +16,7 @@ args=c("--IDphenotypefile","/home/rejudcu/UKBB/lipids/UKBB.HL.20201103.txt",
 "--outputfilespec","UKBB.HL.withSex.R.GENE.rsao",
 "--inputscorefilespec","/cluster/project9/bipolargenomes/UKBB/UKBB.HL.all.20201231/results/UKBB.HL.all.20201231.GENE.sco"
 )
-# args = commandArgs(trailingOnly=TRUE)
+}
 
 setClass("parInfo",slots=list(
 IDphenotypefile="character",
@@ -40,12 +43,13 @@ while (TRUE) {
   arg=args[a*2+1]
   if (arg=="--arg-file") {
 	oldArgs=args[(a*2+3):length(args)]
-	newArgs=data.frame(read.table(args[a*2+2],header=FALSE,sep=""))
+	newArgs=data.frame(read.table(args[a*2+2],header=FALSE,sep="",stringsAsFactors=FALSE))
 	for (r in 1:nrow(newArgs)) {
 	  args[(r-1)*2+1]=newArgs[r,1]
 	  args[(r-1)*2+2]=newArgs[r,2]
 	}
 	args=append(args,oldArgs)
+	a=-1
   } else if (arg=="--IDphenotypefile") {
     pars@IDphenotypefile=args[a*2+2]
   } else if (arg=="--isquantitative") {
@@ -82,14 +86,15 @@ while (TRUE) {
   a=a+1
 }
 
-phenoTypes=data.frame(read.table(pars@IDphenotypefile,header=FALSE))
+phenoTypes=data.frame(read.table(pars@IDphenotypefile,header=FALSE,stringsAsFactors=FALSE))
 if (phenoTypes[1,1]=="IID") {
   phenoTypes=phenoTypes[2:nrow(phenoTypes),]
 }
 colnames(phenoTypes)=c("IID","pheno")
 phenoTypes=phenoTypes[complete.cases(phenoTypes),]
+phenoTypes$pheno=as.numeric(phenoTypes$pheno)
 if (!pars@isquantitative) {
-  phenoTypes=phenoTypes[which(phenoTypes@pheno==0 | phenoTypes@pheno==1),]
+  phenoTypes=phenoTypes[which(phenoTypes$pheno==0 | phenoTypes$pheno==1),]
 }
 
 first=TRUE
@@ -116,7 +121,7 @@ if (length(pars@geneListFile)>0) {
 }
 
 if (file.exists(pars@summaryOutputFile)) {
-  summary=data.frame(read.table(pars@summaryOutputFile,header=TRUE))[,1]
+  summary=data.frame(read.table(pars@summaryOutputFile,header=TRUE,stringsAsFactors=FALSE))
 } else {
   summary=data.frame(matrix(nrow=0,ncol=1+pars@doTTest+pars@doLRTest+pars@doLinRTest+pars@numTestFiles+pars@numLinTestFiles))
   colnames(summary)[1]="Gene"
@@ -163,7 +168,7 @@ if (pars@doLinRTest) {
   LinRTest.LL0=logLik(m)
 }
 
-tests.ndf0=tests.ndf1=tests.model0=tests.model1==tests.LL0=vector()
+tests.ndf0=tests.ndf1=tests.model0=tests.model1=tests.LL0=vector()
 linTests.ndf0=linTests.ndf1=linTests.model0=linTests.model1=linTests.LL0=vector()
 
 for (testTypes in 1:2) {
@@ -229,16 +234,23 @@ for (gene in genes) {
   if (gene %in% summary$Gene) {
     next
   }
-  summary[summaryRow,1]=gene
-  summaryCol=2
-  scores=data.frame(read.table(sprintf(scoreFileSpec,gene),header=FALSE))
-  colnames(scores)=c("IID","oldPheno","score")
-  testData=merge(scores,allData,by="IID")
   if (length(pars@outputFileSpec)>0) {
     outFileName=sprintf(outputFileSpec,gene)
-	write(sprintf("Output for scoreassoc.R, %s",outFileName), outFileName)
 	sink(outFileName)
+	cat(sprintf("Output for scoreassoc.R, %s\n",outFileName))
   }
+  scoresFileName=sprintf(inputScoreFileSpec,gene)
+  if (!file.exists(scoresFileName)) {
+    cat(sprintf("Scores file %s does not exist\n"))
+	sink()
+	next
+  }
+  summary[summaryRow,1]=gene
+print(summary)
+  summaryCol=2
+  scores=data.frame(read.table(scoresFileName,header=FALSE))
+  colnames(scores)=c("IID","oldPheno","score")
+  testData=merge(scores,allData,by="IID")
   if (pars@doTTest) {
     t=t.test(testData$score[testData$pheno==0],testData$score[testData$pheno!=0])
 	SLP=log10(t$p.value)*as.numeric(sign(t$estimate[1]-t$estimate[2]))
@@ -258,8 +270,8 @@ for (gene in genes) {
 	ch2=2*as.numeric(LL1-LRTest.LL0)
 	p=pchisq(ch2,1,lower.tail=FALSE)
 	SLP=-log10(p)*sign(summary(m)$coefficients[nrow(summary(m)$coefficients),1])
-	cat(sprintf("chisq = %f, 1 df, p=%f\nlrSLP = %f (signed log10(p), positive if cases have more variants than controls\n\n",
-	  ch2,p,SLP) 
+	cat(sprintf("chisq = %f, 1 df, p=%f\nlrSLP = %f (signed log10(p), positive if cases have more variants than controls)\n\n",
+	  ch2,p,SLP)) 
 	colnames(summary)[summaryCol]="lrSLP"
 	summary[summaryRow,summaryCol]=SLP
 	summaryCol=summaryCol+1
@@ -274,12 +286,13 @@ for (gene in genes) {
 	ch2=2*as.numeric(LL1-LinRTest.LL0)
 	p=pchisq(ch2,1,lower.tail=FALSE)
 	SLP=-log10(p)*sign(summary(m)$coefficients[nrow(summary(m)$coefficients),1])
-	cat(sprintf("chisq = %f, 1 df, p=%f\nlinrSLP = %f (signed log10(p), positive if cases have more variants than controls\n\n",
-	  ch2,p,SLP) 
+	cat(sprintf("chisq = %f, 1 df, p=%f\nlinrSLP = %f (signed log10(p), positive if variant score is positively correlated with phenotype)\n\n",
+	  ch2,p,SLP)) 
 	colnames(summary)[summaryCol]="linrSLP"
 	summary[summaryRow,summaryCol]=SLP
 	summaryCol=summaryCol+1
   }
+  
   for (testTypes in 1:2) {
     if (testTypes==1) {
       nTests=pars@numTestFiles
@@ -299,6 +312,33 @@ for (gene in genes) {
 	    m1=glm(as.formula(tests.model1[t]),data=testData)
 		df=linTests.ndf1[t]-linTests.ndf0[t]
 	  }
+	  LL0=logLik(m0)
+	  LL1=logLik(m1)
+	  coeffs0=summary(m0)$coefficients
+	  coeffs1=summary(m1)$coefficients
+	  ch2=2*as.numeric(LL1-LL0)
+	  p=pchisq(ch2,df,lower.tail=FALSE)
+	  SLP=-log10(p)
+      cat(sprintf("L0 = %f\n",LL0))
+	  print(coeffs0)
+      cat(sprintf("L1 = %f\n",LL1))
+	  print(coeffs1)
+
+	  if (("score" %in% rownames(coeffs1)) && !("score" %in% rownames(coeffs0))) {
+	    rr=match("score",rownames(coeffs1))
+		if (coeffs1[rr,1]<0) {
+		  SLP=-SLP
+		}
+     	cat(sprintf("chisq = %f, 1 df, p=%f\ntSLP = %f (signed log10(p), positive if variant score is positively correlated with phenotype)\n\n",
+	      ch2,p,SLP)) 
+	    colnames(summary)[summaryCol]="tSLP"
+	  } else {
+     	cat(sprintf("chisq = %f, 1 df, p=%f\ntMLP = %f (minus log10(p))\n\n",
+	      ch2,p,SLP)) 
+	    colnames(summary)[summaryCol]="tMLP"
+	  }
+	  summary[summaryRow,summaryCol]=SLP
+	  summaryCol=summaryCol+1
 	}
   }
 
@@ -307,7 +347,8 @@ for (gene in genes) {
   if (length(pars@outputFileSpec)>0) {
     sink()
   }
-  write.table(summary,pars@summaryOutputFile)
+  write.table(summary,pars@summaryOutputFile,row.names=FALSE,quote=FALSE,sep="\t" )
   summaryRow=summaryRow+1
+print(summary)
 }
 
