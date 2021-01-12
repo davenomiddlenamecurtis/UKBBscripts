@@ -6,6 +6,11 @@
 args = commandArgs(trailingOnly=TRUE)
 
 if (length(args)<1) {
+  args=c("--arg-file","~/pars/rsco.UKBB.BMI.20210111.rarg",
+     "--geneListFile", "/home/rejudcu/reference/DRDgenes.txt")
+}
+
+if (length(args)<1) {
 args=c("--IDphenotypefile","/home/rejudcu/UKBB/lipids/UKBB.HL.20201103.txt",
 "--dottest","1",
 "--varfile","/SAN/ugi/UGIbiobank/data/downloaded/ukb23155.common.all.eigenvec.txt",
@@ -17,6 +22,7 @@ args=c("--IDphenotypefile","/home/rejudcu/UKBB/lipids/UKBB.HL.20201103.txt",
 "--inputscorefilespec","/cluster/project9/bipolargenomes/UKBB/UKBB.HL.all.20201231/results/UKBB.HL.all.20201231.GENE.sco"
 )
 }
+
 
 setClass("parInfo",slots=list(
 IDphenotypefile="character",
@@ -86,7 +92,7 @@ while (TRUE) {
   a=a+1
 }
 
-phenoTypes=data.frame(read.table(pars@IDphenotypefile,header=FALSE,stringsAsFactors=FALSE))
+phenoTypes=data.frame(read.table(pars@IDphenotypefile,header=FALSE,stringsAsFactors=FALSE,sep="\t",))
 if (phenoTypes[1,1]=="IID") {
   phenoTypes=phenoTypes[2:nrow(phenoTypes),]
 }
@@ -246,7 +252,6 @@ for (gene in genes) {
 	next
   }
   summary[summaryRow,1]=gene
-print(summary)
   summaryCol=2
   scores=data.frame(read.table(scoresFileName,header=FALSE))
   colnames(scores)=c("IID","oldPheno","score")

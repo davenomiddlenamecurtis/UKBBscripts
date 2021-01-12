@@ -1,5 +1,5 @@
-wd="C:/Users/dave/OneDrive/sharedseq/UKBB/UKBB.HL.withSex.20201207"
-saoFile="UKBB.HL.withSex.20201207.summ.txt"
+wd="C:/Users/dave/OneDrive/sharedseq/UKBB/T2D.20210106"
+saoFile="UKBB.T2D.withSex.R.20210104.summ.txt"
 
 stripZeroGenes=TRUE
 
@@ -27,6 +27,8 @@ for (c in 2:ncol(results))
 	SLP=na.omit(results[,c])
 	top=max(SLP)
 	bottom=min(SLP)
+	top=6.5
+	bottom=-top
 	SLP=SLP[order(-SLP)]
 	eSLP=qqSLPs(SLP)
 	filename=sprintf("QQ.%s.png",colnames(results)[c])

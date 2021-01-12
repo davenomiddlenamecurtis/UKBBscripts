@@ -25,19 +25,22 @@ SummaryScheme=data.frame(read.table(SummarySchemeFile,header=TRUE,sep="\t"))
 largestCoding=200000
 codings= vector("list", largestCoding)
 # genes="LDLR"
+genes="HIRA"
 
 for (gene in genes) {
 
 UKBBdataFile=sprintf("LOFs.%s.phenos.txt",gene)
 annotsFile=sprintf("IDsAndAnnots.sorted.LOFs.%s.txt",gene)
+UKBBdataFile=sprintf("LOF.20201227.%s.phenos.txt",gene)
+annotsFile=sprintf("IDsAndAnnots.sorted.LOF.20201227.%s.txt",gene)
 OutputFile=sprintf("SummaryFor.%s.txt",gene)
 
 if (!file.exists(UKBBdataFile)) {
 	next
 }
 
-UKBBdata=data.frame(read.table(UKBBdataFile,header=TRUE,sep="\t",fill=TRUE,quote=""))
-annots=data.frame(read.table(annotsFile,header=FALSE,sep=" "))
+UKBBdata=data.frame(read.table(UKBBdataFile,header=TRUE,sep="\t",fill=TRUE,quote="",stringsAsFactors=FALSE))
+annots=data.frame(read.table(annotsFile,header=FALSE,sep=" ",stringsAsFactors=FALSE))
 Summary=data.frame(matrix(ncol=nrow(UKBBdata),nrow=nrow(SummaryScheme)))
 rownames(Summary)=SummaryScheme$Name
 Summary[2,]=annots[,2] # just assume in same order
@@ -71,10 +74,11 @@ for (r in 1:nrow(SummaryScheme)){
       if (s==1 & SummaryScheme$Coding[r] !=0) {
 	    if (is.null(codings[[SummaryScheme$Coding[r]]])) {
 	      fn=sprintf("coding%d.tsv",SummaryScheme$Coding[r])
-	      codings[[SummaryScheme$Coding[r]]]=data.frame(read.table(fn,header=TRUE,sep="\t",quote=""))
+	      codings[[SummaryScheme$Coding[r]]]=data.frame(read.table(fn,header=TRUE,sep="\t",quote="",stringsAsFactors=FALSE))
 		}
 		codes=codings[[SummaryScheme$Coding[r]]]
 	  }
+if (r==55) { print (codes) }
       first=TRUE
 	  output="Missing"
 	  for (c in st:en){
@@ -93,6 +97,7 @@ for (r in 1:nrow(SummaryScheme)){
 		  output=sprintf("%s; %s",output,val)
 		}
 	  }
+if (r==55) { print (output) }
 	  Summary[r,s]=output
   }
 }

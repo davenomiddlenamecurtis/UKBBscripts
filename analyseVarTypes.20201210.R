@@ -9,6 +9,16 @@ scoreFileTemplate="UKBB.alcHigh.varCounts.20201231.%s.sco"
 argFile="~/pars/gva.UKBB.alcHigh.varCounts.20201231.arg"
 wd="~/UKBB/alcohol/genes"
 
+scoreFileTemplate="UKBB.T2D.varCounts.20210106.%s.sco"
+argFile="~/pars/gva.UKBB.T2D.varCounts.20210106.arg"
+wd="~/UKBB/T2D.20210104/genes"
+geneListFile="genesToRedo.txt"
+
+scoreFileTemplate="UKBB.alcProb.varCounts.20210111.%s.sco"
+argFile="~/pars/gva.UKBB.alcProb.varCounts.20210111.arg"
+wd="~/UKBB/alcoholProblems/genes"
+geneListFile="allGenes.txt"
+
 genes=c(
 "LDLR",
 "PCSK9",
@@ -37,16 +47,16 @@ genes=c(
 "STAP1")
 
 
-# genes="no.rs72658867.LDLR"
-# genes="STAP1"
+setwd(wd)
+
+if (file.exists(geneListFile)) {
+ genes=data.frame(read.table(geneListFile,header=FALSE,stringsAsFactors=FALSE))[,1]
+}
 
 args = commandArgs(trailingOnly=TRUE)
 if (length(args)!=0) {
   genes=args
 }
-print(genes)
-print(args)
-q()
 
 PCsFile="/SAN/ugi/UGIbiobank/data/downloaded/ukb23155.common.all.eigenvec"
 sexFile="/home/rejudcu/UKBB/UKBB.sex.20201111.txt"
@@ -65,8 +75,6 @@ types=c(
 "SIFT",
 "PossDam",
 "ProbDam")
-
-setwd(wd)
 
 for (gene in genes) {
 varScoreFile=sprintf(scoreFileTemplate,gene)
