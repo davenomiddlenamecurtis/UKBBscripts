@@ -1,5 +1,5 @@
-wd="C:/Users/dave/OneDrive/sharedseq/UKBB/T2D.20210106"
-saoFile="UKBB.T2D.withSex.R.20210104.summ.txt"
+wd="C:/Users/dave/OneDrive/sharedseq/UKBB/BMI.20210111"
+saoFile="UKBB.BMI.R.20210111.summ.txt"
 
 stripZeroGenes=TRUE
 
