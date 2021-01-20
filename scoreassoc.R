@@ -5,6 +5,12 @@
 
 args = commandArgs(trailingOnly=TRUE)
 
+wd="C:/Users/dave/OneDrive/msvc/data/fixTTest"
+setwd(wd)
+if (length(args)<1) {
+  args=c("--arg-file","testADSP.rarg")
+}
+
 if (length(args)<1) {
   args=c("--arg-file","~/pars/rsco.UKBB.BMI.20210111.rarg",
      "--geneListFile", "/home/rejudcu/reference/DRDgenes.txt")
@@ -43,12 +49,16 @@ doTTest=0,doLRTest=0,doLinRTest=0,isquantitative=0)
 
 a=0
 while (TRUE) {
-  if (a*2>=length(args)) {
+  if (a*2+1>=length(args)) {
     break;
   }
   arg=args[a*2+1]
   if (arg=="--arg-file") {
-	oldArgs=args[(a*2+3):length(args)]
+    if ((a*2+3)<length(args)) {
+	  oldArgs=args[(a*2+3):length(args)]
+	} else {
+	  oldArgs=c("")
+	}
 	newArgs=data.frame(read.table(args[a*2+2],header=FALSE,sep="",stringsAsFactors=FALSE))
 	for (r in 1:nrow(newArgs)) {
 	  args[(r-1)*2+1]=newArgs[r,1]
@@ -92,7 +102,7 @@ while (TRUE) {
   a=a+1
 }
 
-phenoTypes=data.frame(read.table(pars@IDphenotypefile,header=FALSE,stringsAsFactors=FALSE,sep="\t",))
+phenoTypes=data.frame(read.table(pars@IDphenotypefile,header=FALSE,stringsAsFactors=FALSE,sep="",fill=TRUE))
 if (phenoTypes[1,1]=="IID") {
   phenoTypes=phenoTypes[2:nrow(phenoTypes),]
 }
@@ -103,6 +113,7 @@ if (!pars@isquantitative) {
   phenoTypes=phenoTypes[which(phenoTypes$pheno==0 | phenoTypes$pheno==1),]
 }
 
+if (pars@numVarFiles>0) {
 first=TRUE
 for (f in 1:pars@numVarFiles) {
   newVars=data.frame(read.table(pars@varFiles[f],header=TRUE))
@@ -118,6 +129,7 @@ for (f in 1:pars@numVarFiles) {
   } else {
     vars=merge(vars,newVars,by="IID")
   }
+}
 }
 
 if (length(pars@geneListFile)>0) {
@@ -138,6 +150,8 @@ inputScoreFileSpec=sub("GENE","%s",pars@inputScoreFileSpec)
 if (length(pars@outputFileSpec)>0) {
   outputFileSpec=sub("GENE","%s",pars@outputFileSpec)
 }
+
+if (pars@numVarFiles>0) {
 allData=merge(phenoTypes,vars,by="IID")
 if (pars@numVarFiles>0) {
     first=TRUE
@@ -152,6 +166,11 @@ if (pars@numVarFiles>0) {
 	}
 	fullModel1=sprintf("%s + score",fullModel0)
 } else {
+    fullModel0="pheno ~ 1"
+    fullModel1="pheno ~ score"
+}
+} else {
+  allData=phenoTypes
     fullModel0="pheno ~ 1"
     fullModel1="pheno ~ score"
 }
@@ -257,8 +276,8 @@ for (gene in genes) {
   colnames(scores)=c("IID","oldPheno","score")
   testData=merge(scores,allData,by="IID")
   if (pars@doTTest) {
-    t=t.test(testData$score[testData$pheno==0],testData$score[testData$pheno!=0])
-	SLP=log10(t$p.value)*as.numeric(sign(t$estimate[1]-t$estimate[2]))
+    tt=t.test(testData$score[testData$pheno==0],testData$score[testData$pheno!=0])
+	SLP=log10(tt$p.value)*as.numeric(sign(tt$estimate[1]-tt$estimate[2]))
 	colnames(summary)[summaryCol]="SLP"
 	summary[summaryRow,summaryCol]=SLP
 	summaryCol=summaryCol+1
