@@ -19,7 +19,11 @@ argFile="~/pars/gva.UKBB.alcProb.varCounts.20210111.arg"
 wd="~/UKBB/alcoholProblems/genes"
 geneListFile="allGenes.txt"
 
-# setwd(wd)
+model="UKBB.BMI.varCounts.20210113"
+scoreFileTemplate="UKBB.BMI.varCounts.20210113.%s.sco"
+argFile="~/pars/gva.UKBB.BMI.varCounts.20210113.arg"
+wd="/home/rejudcu/UKBB/BMI.20210111/genes"
+geneListFile="allGenes.BMI.20210113.txt"
 
 genes=c(
 "LDLR",
@@ -48,16 +52,16 @@ genes=c(
 "APOB",
 "STAP1")
 
+
+setwd(wd)
+
 if (file.exists(geneListFile)) {
  genes=data.frame(read.table(geneListFile,header=FALSE,stringsAsFactors=FALSE))[,1]
 }
 
 args = commandArgs(trailingOnly=TRUE)
-if (length(args)==2) {
-  model=args[1]
-  scoreFileTemplate=sprintf("%s.%s",model,"%s.sco")
-  argFile=sprintf("~/pars/gva.%s.arg",model)
-  genes=args[2]
+if (length(args)!=0) {
+  genes=args
 }
 
 PCsFile="/SAN/ugi/UGIbiobank/data/downloaded/ukb23155.common.all.eigenvec"
@@ -79,7 +83,8 @@ types=c(
 "ProbDam")
 
 for (gene in genes) {
-varScoreFile=sprintf(scoreFileTemplate,gene)
+varScoreFile=sprintf("%s.%s.sco",model,gene)
+saoFile=sprintf("%s.%s.sao",model,gene)
 resultsFile=sprintf("analyseVarTypes.results.%s.txt",gene)
 if (file.exists(resultsFile)) { 
   next 
@@ -88,11 +93,24 @@ if (file.exists(resultsFile)) {
 commLine=sprintf("if [ ! -e %s ];then geneVarAssoc --arg-file %s --gene %s; fi",varScoreFile, argFile, gene)
 system(commLine)
 
+lines=readLines(saoFile)
+varLoci=data.frame(matrix(ncol=2+nVarTypes,nrow=length(lines),NA))
+colnames(varLoci)[1:2]=c("Locus","VarScore")
+r=1
+for (ll in 1:length(lines))
+		{
+		words=strsplit(lines[ll],"\\s+")[[1]] 
+		if (length(words)<15 || !grepl(":",words[1])) next
+		varLoci$Locus[r]=words[1]
+		varLoci$VarScore[r]=as.numeric(words[14])
+		r=r+1
+		}
+varLoci=varLoci[!is.na(varLoci[,1]),]
+
 varScores=data.frame(read.table(varScoreFile,header=FALSE,sep=""))
 PCsTable=data.frame(read.table(PCsFile,header=TRUE,sep="\t"))
 sexTable=data.frame(read.table(sexFile,header=TRUE,sep="\t"))
 
-varTypes=data.frame(matrix(ncol=3+nVarTypes,nrow=nrow(varScores)))
 
 colnames(PCsTable)[1:2]=c("FID","IID")
 formulaString=("Pheno ~")
@@ -101,21 +119,27 @@ for (p in 1:20) {
   colnames(PCsTable)[2+p]=sprintf("PC%d",p)
 }
 
+varTypes=data.frame(matrix(ncol=3+nVarTypes,nrow=nrow(varScores)))
 varTypes[,1:3]=varScores
 colnames(varTypes)[1:3]=c("IID","Pheno","VarScore")
+varTypes$None=0
+varTypes$None[varTypes$VarScore==0]=1 # extra column
 typeNames=""
 for (v in 1:nVarTypes) {
   colnames(varTypes)[3+v]=sprintf(types[v])
+  colnames(varLoci)[2+v]=sprintf(types[v])
   typeNames=sprintf("%s + %s",typeNames,types[v])
   varTypes[,3+v]=varTypes[,3]%%10
   varTypes[,3]=floor(varTypes[,3]/10)
+  varLoci[,2+v]=varLoci[,2]%%10
+  varLoci[,2]=floor(varLoci[,2]/10)
 }
 formulaString=sprintf("%s Sex %s",formulaString,typeNames)
 
 allData=merge(varTypes,PCsTable,by="IID",all=FALSE)
 allData=merge(allData,sexTable,by="IID",all=FALSE)
 
-model=glm(as.formula(formulaString), data = allData, family = "binomial")
+model=glm(as.formula(formulaString), data = allData)
 summary(model)
 
 nr <- nVarTypes+22 - nrow(summary(model)$coefficients) 
@@ -130,9 +154,9 @@ coeffs=data.frame(matrix(ncol=5,nrow=nrow(mat_coef)-22))
 colnames(coeffs)[1]="Type"
 coeffs[,2:5]=mat_coef[23:nrow(mat_coef),]
 coeffs[,1]=rownames(mat_coef)[23:nrow(mat_coef)]
-coeffs$OR=exp(coeffs[,2])
-coeffs$LCL=exp(coeffs[,2]-coeffs[,3]*2)
-coeffs$HCL=exp(coeffs[,2]+coeffs[,3]*2)
+coeffs$beta=coeffs[,2]
+coeffs$LCL=coeffs[,2]-coeffs[,3]*2
+coeffs$HCL=coeffs[,2]+coeffs[,3]*2
 coeffs
 # Now do a join using dply to get rows in right order
 orderTypes=data.frame(matrix(ncol=1,nrow=nVarTypes))
@@ -140,44 +164,27 @@ colnames(orderTypes)[1]="Type"
 orderTypes[,1]=types
 coeffs=join(orderTypes,coeffs,by="Type")
 
-resultColumns=c("Type","NumCont","MeanCont","NumCase","MeanCase","OR","SLP")
-results=data.frame(matrix(ncol=length(resultColumns),nrow=nVarTypes))
+resultColumns=c("Type","NumLoci","TotLoad","AveLoad","CarrierMean","CarrierSD","SLP","Effect")
+results=data.frame(matrix(ncol=length(resultColumns),nrow=nVarTypes+1))
 colnames(results)=resultColumns
-results$Type=types
-for (v in 1:nVarTypes) {
-  results$NumCont[v]=sum(varTypes[varTypes$Pheno==0,3+v])
-  results$MeanCont[v]=sprintf("%.6f",results$NumCont[v]/sum(varTypes$Pheno==0))
-  results$NumCase[v]=sum(varTypes[varTypes$Pheno==1,3+v])
-  results$MeanCase[v]=sprintf("%.6f",results$NumCase[v]/sum(varTypes$Pheno==1))
-}
-
-results$OR=sprintf("%.2f (%.2f - %.2f)",coeffs$OR,coeffs$LCL,coeffs$HCL)
-results$SLP=sprintf("%.2f",log10(coeffs[,5])*sign(as.numeric(results$MeanCont)-as.numeric(results$MeanCase)))
-
-for (r in 1:nrow(results)) {
-  nCont=as.numeric(results$NumCont[r])
-  nCase=as.numeric(results$NumCase[r])
-  if (nCont==0 || nCase==0) results$OR[r]=""
-  if (nCont+nCase<50) {
-    fVals=matrix(c(nCont,sum(varTypes$Pheno==0)-nCont,nCase,sum(varTypes$Pheno==1)-nCase),nrow=2,ncol=2)
-	fTest=fisher.test(fVals)
-  results$SLP[r]=sprintf("%.2f",log10(fTest$p.value)*sign(as.numeric(results$MeanCont[r])-as.numeric(results$MeanCase))[r])
+results$Type[1:nVarTypes]=types
+results$Type[nVarTypes+1]="None"
+for (v in 1:(nVarTypes+1)) {
+  if (v<=nVarTypes){
+    results$NumLoci[v]=sum(varLoci[,2+v])
   }
+  results$TotLoad[v]=sum(varTypes[,3+v])
+  results$AveLoad[v]=sprintf("%.6f",results$TotLoad[v]/nrow(varTypes))
+  results$CarrierMean[v]=mean(varTypes$Pheno[varTypes[,3+v]!=0])
+  results$CarrierSD[v]=sd(varTypes$Pheno[varTypes[,3+v]!=0])
 }
-results
+
+results$Effect[1:nVarTypes]=sprintf("%.2f (%.2f - %.2f)",coeffs$beta,coeffs$LCL,coeffs$HCL)
+results$SLP[1:nVarTypes]=sprintf("%.2f",-log10(coeffs[,5])*sign(coeffs$beta))
 
 write.table(results,resultsFile,row.names=FALSE,quote=FALSE,sep="\t")
 
-
 coVars=" ~ PC1 + PC2 + PC3 + PC4 + PC5 + PC6 + PC7 + PC8 + PC9 + PC10 + PC11 + PC12 + PC13 + PC14 + PC15 + PC16 + PC17 + PC18 + PC19 + PC20 + Sex"
-tStats=data.frame(matrix(nrow=22,ncol=nVarTypes))
-colnames(tStats)=types
-for (v in 1:nVarTypes) {
-  f=sprintf("%s %s",types[v],coVars)
-  t=glm(as.formula(f), data = allData)
-  tStats[,v]=summary(t)$coefficients[,3]
-}
-tStats
 
 corrs=data.frame(matrix(nrow=21,ncol=nVarTypes))
 MLPs=data.frame(matrix(nrow=21,ncol=nVarTypes))

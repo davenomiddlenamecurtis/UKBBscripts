@@ -1,5 +1,4 @@
 #!/share/apps/R-3.6.1/bin/Rscript
-
 # script to get data files to analyse contribution of different types of variant to phenotype
 library(plyr)
 scoreFileTemplate="UKBB.HL.varCounts.20201211.%s.sco"
@@ -53,10 +52,10 @@ if (file.exists(geneListFile)) {
 }
 
 args = commandArgs(trailingOnly=TRUE)
+# args=c("UKBB.alcProb.varCounts.20210111","CDH9")
+gene="CDH9"
 if (length(args)==2) {
   model=args[1]
-  scoreFileTemplate=sprintf("%s.%s",model,"%s.sco")
-  argFile=sprintf("~/pars/gva.%s.arg",model)
   genes=args[2]
 }
 
@@ -79,7 +78,9 @@ types=c(
 "ProbDam")
 
 for (gene in genes) {
-varScoreFile=sprintf(scoreFileTemplate,gene)
+argFile=sprintf("gva.%s.arg",model)
+varScoreFile=sprintf("%s.%s.sco",model,gene)
+saoFile=sprintf("%s.%s.sao",model,gene)
 resultsFile=sprintf("analyseVarTypes.results.%s.txt",gene)
 if (file.exists(resultsFile)) { 
   next 
@@ -88,11 +89,23 @@ if (file.exists(resultsFile)) {
 commLine=sprintf("if [ ! -e %s ];then geneVarAssoc --arg-file %s --gene %s; fi",varScoreFile, argFile, gene)
 system(commLine)
 
+lines=readLines(saoFile)
+varLoci=data.frame(matrix(ncol=2+nVarTypes,nrow=length(lines),NA))
+colnames(varLoci)[1:2]=c("Locus","VarScore")
+r=1
+for (ll in 1:length(lines))
+		{
+		words=strsplit(lines[ll],"\\s+")[[1]] 
+		if (length(words)<17 || !grepl(":",words[1])) next
+		varLoci$Locus[r]=words[1]
+		varLoci$VarScore[r]=as.numeric(words[16])
+		r=r+1
+		}
+varLoci=varLoci[!is.na(varLoci[,1]),]
+
 varScores=data.frame(read.table(varScoreFile,header=FALSE,sep=""))
 PCsTable=data.frame(read.table(PCsFile,header=TRUE,sep="\t"))
 sexTable=data.frame(read.table(sexFile,header=TRUE,sep="\t"))
-
-varTypes=data.frame(matrix(ncol=3+nVarTypes,nrow=nrow(varScores)))
 
 colnames(PCsTable)[1:2]=c("FID","IID")
 formulaString=("Pheno ~")
@@ -101,14 +114,18 @@ for (p in 1:20) {
   colnames(PCsTable)[2+p]=sprintf("PC%d",p)
 }
 
+varTypes=data.frame(matrix(ncol=3+nVarTypes,nrow=nrow(varScores)))
 varTypes[,1:3]=varScores
 colnames(varTypes)[1:3]=c("IID","Pheno","VarScore")
 typeNames=""
 for (v in 1:nVarTypes) {
   colnames(varTypes)[3+v]=sprintf(types[v])
+  colnames(varLoci)[2+v]=sprintf(types[v])
   typeNames=sprintf("%s + %s",typeNames,types[v])
   varTypes[,3+v]=varTypes[,3]%%10
   varTypes[,3]=floor(varTypes[,3]/10)
+  varLoci[,2+v]=varLoci[,2]%%10
+  varLoci[,2]=floor(varLoci[,2]/10)
 }
 formulaString=sprintf("%s Sex %s",formulaString,typeNames)
 
@@ -140,11 +157,12 @@ colnames(orderTypes)[1]="Type"
 orderTypes[,1]=types
 coeffs=join(orderTypes,coeffs,by="Type")
 
-resultColumns=c("Type","NumCont","MeanCont","NumCase","MeanCase","OR","SLP")
+resultColumns=c("Type","NumLoci","NumCont","MeanCont","NumCase","MeanCase","OR","SLP")
 results=data.frame(matrix(ncol=length(resultColumns),nrow=nVarTypes))
 colnames(results)=resultColumns
 results$Type=types
 for (v in 1:nVarTypes) {
+  results$NumLoci[v]=sum(varLoci[,2+v])
   results$NumCont[v]=sum(varTypes[varTypes$Pheno==0,3+v])
   results$MeanCont[v]=sprintf("%.6f",results$NumCont[v]/sum(varTypes$Pheno==0))
   results$NumCase[v]=sum(varTypes[varTypes$Pheno==1,3+v])

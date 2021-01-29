@@ -17,6 +17,12 @@ genes=c(
 "RB1CC1"
 )
 
+args = commandArgs(trailingOnly=TRUE)
+if (length(args)>0) {
+  genes=args
+}
+
+
 wd="C:/Users/dave/OneDrive/sharedseq/UKBB/LOF"
 # setwd(wd)
 SummarySchemeFile="SummaryScheme.txt"
@@ -25,7 +31,7 @@ SummaryScheme=data.frame(read.table(SummarySchemeFile,header=TRUE,sep="\t"))
 largestCoding=200000
 codings= vector("list", largestCoding)
 # genes="LDLR"
-genes="HIRA"
+# genes="HIRA"
 
 for (gene in genes) {
 
