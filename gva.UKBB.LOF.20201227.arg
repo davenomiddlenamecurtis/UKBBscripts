@@ -7,7 +7,8 @@
 --margin 0
 --upstream 0 
 --downstream 0
---weight-factor 10.0 
+--weight-factor 1.0 
+--use-transposed-file 1
 --weight-expression '( ( GETVEP ("CSQ" VCFLOOKUP "/home/rejudcu/vcf/UKBB.20201103/UKBexomeOQFE_chr.mult.annot.vcf.gz")) GETWEIGHT "/home/rejudcu/reference/LOF.weights.txt" ) '
 --comment-expression ' "CSQ" VCFLOOKUP "/home/rejudcu/vcf/UKBB.20201103/UKBexomeOQFE_chr.mult.annot.vcf.gz" '
 --exclude-expression 'ATTRIB ("WEIGHT") < 10'

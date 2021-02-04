@@ -1,6 +1,7 @@
---arg-file /home/rejudcu/pars/gva.UKBB.all.20201103.arg
---ID-and-phenotype-file /home/rejudcu/UKBB/lipids/UKBB.HL.20201103.txt
---test-name gva.UKBB.HL.withSex.withCounts.20201207
+--arg-file /home/rejudcu/pars/gva.UKBB.varCounts.20201211.arg
+--ID-and-phenotype-file /home/rejudcu/UKBB/T2D.20210104/UKBB.T2D.txt
+--test-name UKBB.T2D.varCounts.20210106
+--lamda 0
 --isquantitative 0 
 --varfile /home/rejudcu/UKBB/UKBB.sex.20201111.txt 
 --dottest 1 

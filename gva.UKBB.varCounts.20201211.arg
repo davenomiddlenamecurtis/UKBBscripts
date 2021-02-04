@@ -11,6 +11,7 @@
 --comment-expression ' "CSQ" VCFLOOKUP "/home/rejudcu/vcf/UKBB.20201103/UKBexomeOQFE.pickPerGene.chr.annot.vcf.gz" '
 --missingzero 1
 --merge-alt-alleles 0
+--dont-merge-alleles 1
 --consequence-threshold 0
 --use-consequence-weights 1 
 --only-use-SNPs 0

@@ -10,6 +10,7 @@
 --weight-expression '( ( GETVEP ("CSQ" VCFLOOKUP "/home/rejudcu/vcf/UKBB.20201103/UKBexomeOQFE.pick.chr.annot.vcf.gz")) GETWEIGHT "/home/rejudcu/reference/varCountWeights.20201210.txt" ) + ( ( GETPOLYPHEN ("CSQ" VCFLOOKUP "/home/rejudcu/vcf/UKBB.20201103/UKBexomeOQFE.pick.chr.annot.vcf.gz") ) GETWEIGHT "/home/rejudcu/reference/POLYPHENVarCountWeights.txt"  ) +  ( ( GETSIFT ("CSQ" VCFLOOKUP "/home/rejudcu/vcf/UKBB.20201103/UKBexomeOQFE.pick.chr.annot.vcf.gz") ) GETWEIGHT "/home/rejudcu/reference/SIFTVarCountWeights.txt" ) '
 --comment-expression ' "CSQ" VCFLOOKUP "/home/rejudcu/vcf/UKBB.20201103/UKBexomeOQFE.pick.chr.annot.vcf.gz" '
 --merge-alt-alleles 0
+--dont-merge-alleles 1
 --consequence-threshold 0
 --use-consequence-weights 1 
 --only-use-SNPs 0

@@ -52,11 +52,11 @@ if (file.exists(geneListFile)) {
 }
 
 args = commandArgs(trailingOnly=TRUE)
-# args=c("UKBB.alcProb.varCounts.20210111","CDH9")
-gene="CDH9"
+# args=c("UKBB.alcProb.varCounts.20210202","FOXP1")
 if (length(args)==2) {
   model=args[1]
   genes=args[2]
+  gene=genes
 }
 
 PCsFile="/SAN/ugi/UGIbiobank/data/downloaded/ukb23155.common.all.eigenvec"
@@ -78,7 +78,7 @@ types=c(
 "ProbDam")
 
 for (gene in genes) {
-argFile=sprintf("gva.%s.arg",model)
+argFile=sprintf("~/pars/gva.%s.arg",model)
 varScoreFile=sprintf("%s.%s.sco",model,gene)
 saoFile=sprintf("%s.%s.sao",model,gene)
 resultsFile=sprintf("analyseVarTypes.results.%s.txt",gene)
