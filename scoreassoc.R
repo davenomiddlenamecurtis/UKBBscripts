@@ -5,8 +5,6 @@
 
 args = commandArgs(trailingOnly=TRUE)
 
-wd="C:/Users/dave/OneDrive/msvc/data/fixTTest"
-setwd(wd)
 if (length(args)<1) {
   args=c("--arg-file","testADSP.rarg")
 }
@@ -373,6 +371,6 @@ for (gene in genes) {
   }
   write.table(summary,pars@summaryOutputFile,row.names=FALSE,quote=FALSE,sep="\t" )
   summaryRow=summaryRow+1
-print(summary)
+# print(summary)
 }
 

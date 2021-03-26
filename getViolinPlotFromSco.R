@@ -1,5 +1,5 @@
-wd="C:/Users/dave/OneDrive/sharedseq/UKBB/UKBB.HL.all.20201103"
-scoFile="UKBB.HL.all.20201103.LDLR.sco"
+wd="C:/Users/dave/OneDrive/sharedseq/UKBB/annot"
+scoFile="UKBB.HL.gerpLin.20210225.LDLR.sco"
 
 library(ggplot2)
 setwd(wd)

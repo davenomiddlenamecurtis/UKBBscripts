@@ -52,7 +52,7 @@ if (file.exists(geneListFile)) {
 }
 
 args = commandArgs(trailingOnly=TRUE)
-# args=c("UKBB.alcProb.varCounts.20210202","FOXP1")
+# args=c("UKBB.HT.varCounts.20210205","HSD11B2")
 if (length(args)==2) {
   model=args[1]
   genes=args[2]
@@ -170,7 +170,7 @@ for (v in 1:nVarTypes) {
 }
 
 results$OR=sprintf("%.2f (%.2f - %.2f)",coeffs$OR,coeffs$LCL,coeffs$HCL)
-results$SLP=sprintf("%.2f",log10(coeffs[,5])*sign(as.numeric(results$MeanCont)-as.numeric(results$MeanCase)))
+results$SLP=sprintf("%.2f",log10(coeffs[,5])*sign(1-coeffs$OR))
 
 for (r in 1:nrow(results)) {
   nCont=as.numeric(results$NumCont[r])
