@@ -112,7 +112,7 @@ genesToPlot=allResults[allResults$Gene %in% c("LDLR","MC4R","PCSK1") ,c(1,2,7)]
 colnames(genesToPlot)[3]="SLP"
 ggplot(genesToPlot,aes_string(x="WF",y="SLP",group="Gene")) +geom_line() +geom_point(aes(shape=Gene))+ theme_bw()
 
-png(height=600, width=600, pointsize=25, file="threeGenesSLPsByWF.png")
-ggplot(genesToPlot,aes_string(x="WF",y="SLP",group="Gene")) +geom_line() +geom_point(size=3,aes(shape=Gene))+ theme_bw()
+png(height=2400, width=2400, pointsize=25, res=600, file="threeGenesSLPsByWF.png")
+ggplot(genesToPlot,aes_string(x="WF",y="SLP",group="Gene")) +geom_line() +geom_point(size=2,aes(shape=Gene))+ theme_bw()
 dev.off()
 

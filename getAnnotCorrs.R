@@ -42,7 +42,8 @@ write.table(ewScores,sprintf("ewScores.%s.txt",ver),row.names=FALSE,quote=FALSE,
 ewScores=data.frame(read.table(sprintf("ewScores.%s.txt",ver),header=TRUE,sep="\t"))
 
 library(corrplot)
-png(height=2400, width=2400, pointsize=25, file="ewScoreCorrs.png")
+M=cor(ewScores)
+png(height=4800, width=4800, pointsize=25, res=200, file="ewScoreCorrs.png")
 whiteblack <- c("white", "black")
 corrplot(M, col = whiteblack, bg = "gray",tl.col="black",cl.pos="n")
 dev.off()

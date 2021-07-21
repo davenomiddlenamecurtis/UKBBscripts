@@ -43,8 +43,8 @@ rowStart=vector()
 rNames=vector()
 rNames[1]="N"
 rNames[2]="UKBBPrev"
-rNames[2]="SCHEMACasePrev"
-rNames[2]="SCHEMAControlPrev"
+rNames[3]="SCHEMACasePrev"
+rNames[4]="SCHEMAControlPrev"
 totRow=4
 for (r in 1:nrow(SummaryScheme)) {
 	totRow=totRow+1
@@ -73,7 +73,7 @@ N=nrow(UKBBdata)
 SummaryTab[1,c]=N
 SummaryTab[2,c]=N*100000/nUKBB
 SummaryTab[3,c]=SCHEMATable[which(SCHEMATable$Gene==gene),2]*100000/nSCHEMAcase
-SummaryTab[3,c]=SCHEMATable[which(SCHEMATable$Gene==gene),3]*100000/nSCHEMAcontrol
+SummaryTab[4,c]=SCHEMATable[which(SCHEMATable$Gene==gene),3]*100000/nSCHEMAcontrol
 for (r in 1:nrow(SummaryScheme)){
   toMatch=sprintf("X%s",chartr("-",".",SummaryScheme$First[r])) # because R converts column names
   if (SummaryScheme$Coding[r]!=0) {

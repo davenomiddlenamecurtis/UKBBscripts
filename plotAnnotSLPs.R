@@ -57,10 +57,10 @@ for (c in 1:ncol(vwToPlot)) {
 }
 vwToPlot
 whiteblack <- c("white", "black")
-png(height=600, width=600, pointsize=25, file="vwSLPs.png")
+png(height=2400, width=2400, pointsize=25, res=200, file="vwSLPs.png")
 corrplot(vwToPlot,is.corr=FALSE, col = whiteblack, bg = "gray",tl.col="black",cl.pos="n")
 dev.off()
-png(height=2400, width=1200, pointsize=25, file="ewSLPs.png")
+png(height=4800, width=2400, pointsize=25, res=200, file="ewSLPs.png")
 corrplot(ewToPlot,is.corr=FALSE, col = whiteblack, bg = "gray",tl.col="black",cl.pos="n")
 dev.off()
 
